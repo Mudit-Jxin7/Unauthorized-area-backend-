@@ -9,8 +9,8 @@ const app = express();
 const port = 3000;
 
 const users = [
-  { username: "ramanjot", password: "123456" },
-  { username: "mudit", password: "938583" },
+  { username: "ramanjotsingh247@gmail.com", password: "123456" },
+  { username: "muditert34@gmail.com", password: "938583" },
   { username: "muniyandi", password: "842985" },
 ];
 
@@ -67,6 +67,44 @@ app.get("/mail", async (req, res) => {
     subject: "Hello Admin",
     text: "Unauthorized user detected!!",
     html: "<b>Unauthorized user detected!!</b>",
+  });
+
+  console.log("Message sent: %s", info.messageId);
+  res.json(info);
+});
+
+app.post("/mail", async (req, res) => {
+  let testAccount = await nodemailer.createTestAccount();
+
+  // connect with the smtp
+  const email = req.body.email;
+  const message = req.body.message;
+
+  // If no email found, return an error
+  if (!email) {
+    return res.status(404).json({ message: "Email address not found." });
+  }
+
+  const emailDoc = await EmailModel.findOne();
+
+  if (!emailDoc) {
+    return res.status(404).json({ message: "Email address not found." });
+  }
+
+  let transporter = await nodemailer.createTransport({
+    service: "gmail",
+    host: "smtp.gmail.com",
+    auth: {
+      user: "muditert34@gmail.com",
+      pass: "otzbxqvmoeoihfoe",
+    },
+  });
+
+  let info = await transporter.sendMail({
+    from: email,
+    to: emailDoc.email,
+    subject: "Access to unauthorized area",
+    text: `You have message from ${email} : ${message}`,
   });
 
   console.log("Message sent: %s", info.messageId);
